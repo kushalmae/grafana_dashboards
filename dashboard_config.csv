@@ -1,12 +1,8 @@
-Row,Panel_Title,Panel_Type,Eng_Str_Field,Time_Field,Table_Name,Spacecraft_ID,Dataset,Is_Additional_Target
-Row1,Test Panel 1,state-timeline,eng_str,ert,STATE_MACH_TARGET_STATE,${scid},iox,
-Row1,Test Panel 2,state-timeline,eng_str,ert,STATE_MACH_TARGET_STATE,${scid},iox,
-Row1,,,status_field,timestamp,SYSTEM_STATUS,${scid},iox,TRUE
-Row1,,,health_str,ert,HEALTH_CHECK,${scid},iox,TRUE
-Row1,,,mode_str,ert,OPERATION_MODE,${scid},iox,TRUE
-
-Row2,Test Panel 3,state-timeline,eng_str,ert,STATE_MACH_TARGET_STATE,${scid},iox,
-Row2,Test Panel 4,state-timeline,eng_str,ert,STATE_MACH_TARGET_STATE,${scid},iox,
-Row2,,,status_field,timestamp,SYSTEM_STATUS,${scid},iox,TRUE
-Row2,,,health_str,ert,HEALTH_CHECK,${scid},iox,TRUE
-Row2,,,mode_str,ert,OPERATION_MODE,${scid},iox,TRUE
+Row,Panel_Template,Panel_Type,Eng_Str_Field,Time_Field,Table_Name,Spacecraft_ID,Dataset,Payloads,Layout,Is_Additional_Target
+Row1,Engine Status,state-timeline,eng_str,ert,STATE_MACH_TARGET_STATE_${scid},${scid},iox,PL1|PL2|PL3|PL4,horizontal,
+Row1,,,status_field,timestamp,SYSTEM_STATUS_${scid},${scid},iox,,,TRUE
+Row1,,,health_str,ert,HEALTH_CHECK_${scid},${scid},iox,,,TRUE
+Row2,Fuel Level,stat,fuel_level,ert,FUEL_SYSTEM_${scid},${scid},iox,PL1|PL2,sequential,
+Row2,,,fuel_temp,ert,FUEL_TEMP_${scid},${scid},iox,,,TRUE
+Row2,Fuel Level2,stat,fuel_level,ert,FUEL_SYSTEM_${scid},${scid},iox,PL1|PL2,sequential,
+Row2,,,fuel_temp,ert,FUEL_TEMP_${scid},${scid},iox,,,TRUE

@@ -87,7 +87,7 @@ class GrafanaDashboardGenerator:
         try:
             styles_df = pd.read_csv(styles_file)
             for _, row in styles_df.iterrows():
-                panel_title = row['Panel_Title']
+                panel_title = row['Panel_Template']
                 self.panel_styles[panel_title] = {
                     'grid_height': int(row.get('Grid_Height', 5)),
                     'grid_width': int(row.get('Grid_Width', 5)),
@@ -210,8 +210,9 @@ class GrafanaDashboardGenerator:
         """Create a panel from configuration"""
         panel_title = config.get('Panel_Title', '')
         
-        # Get styles for this panel
-        panel_style = self.panel_styles.get(panel_title, {})
+        # Get styles for this panel using template name
+        panel_template = config.get('Panel_Template', panel_title)
+        panel_style = self.panel_styles.get(panel_template, {})
         grid_height = panel_style.get('grid_height', 5)
         grid_width = panel_style.get('grid_width', 5)
         mappings = panel_style.get('mappings', [{
@@ -255,9 +256,125 @@ class GrafanaDashboardGenerator:
             },
             "pluginVersion": "12.1.0-247000",
             "targets": [],  # Will be populated dynamically
-            "title": config['Panel_Title'],
+            "title": config.get('Panel_Title', config.get('Panel_Template', 'Untitled')),
             "type": config.get('Panel_Type', 'state-timeline')
         }
+    
+    def _expand_payloads(self, row_data) -> List[Dict[str, Any]]:
+        """Expand payload templates into individual panels"""
+        expanded_panels = []
+        
+        for _, row_config in row_data.iterrows():
+            payloads_str = row_config.get('Payloads', '')
+            panel_template = row_config.get('Panel_Template', '')
+            is_additional_target = str(row_config.get('Is_Additional_Target', '')).upper() == 'TRUE'
+            
+            if payloads_str and not pd.isna(payloads_str) and panel_template and not is_additional_target:
+                # Split payloads: "PL1|PL2|PL3|PL4"
+                payloads = [p.strip() for p in payloads_str.split('|') if p.strip()]
+                
+                for payload in payloads:
+                    # Create individual panel for each payload
+                    new_config = row_config.copy()
+                    new_config['Panel_Title'] = f"{panel_template} {payload}"
+                    
+                    # Replace ${scid} with payload in table names and spacecraft_id
+                    for field in ['Table_Name', 'Spacecraft_ID']:
+                        field_value = str(row_config.get(field, ''))
+                        if '${scid}' in field_value:
+                            new_config[field] = field_value.replace('${scid}', payload)
+                    
+                    expanded_panels.append(new_config.to_dict())
+            else:
+                # Regular panel (no payload expansion) or additional target
+                expanded_panels.append(row_config.to_dict())
+        
+        return expanded_panels
+
+    def _calculate_layout_positions(self, panel_groups, current_x=0, current_y=0):
+        """Calculate panel positions based on layout strategy"""
+        positioned_panels = []
+        
+        # Group panels by template and layout to handle payloads together
+        template_groups = {}
+        for panel_group in panel_groups:
+            panel_config = panel_group['panel_config']
+            panel_template = panel_config.get('Panel_Template', '')
+            layout_type = panel_config.get('Layout', 'sequential').lower()
+            
+            # Create key for grouping (template + layout)
+            group_key = f"{panel_template}_{layout_type}"
+            
+            if group_key not in template_groups:
+                template_groups[group_key] = {
+                    'template': panel_template,
+                    'layout': layout_type,
+                    'panels': []
+                }
+            template_groups[group_key]['panels'].append(panel_group)
+        
+        # Position each template group
+        for group_key, template_group in template_groups.items():
+            layout_type = template_group['layout']
+            template_name = template_group['template']
+            panels_in_group = template_group['panels']
+            
+            # Get panel dimensions
+            panel_style = self.panel_styles.get(template_name, {})
+            panel_width = panel_style.get('grid_width', 5)
+            panel_height = panel_style.get('grid_height', 5)
+            
+            if layout_type == 'horizontal':
+                # For horizontal layout, force new row and place all payloads side by side
+                if current_x > 0:
+                    current_y += panel_height
+                    current_x = 0
+                
+                # Place all panels of this template horizontally
+                for panel_group in panels_in_group:
+                    panel_group['x_pos'] = current_x
+                    panel_group['y_pos'] = current_y
+                    positioned_panels.append(panel_group)
+                    current_x += panel_width
+                    
+                    # Check if we exceed width
+                    if current_x >= 24:
+                        current_x = 0
+                        current_y += panel_height
+                
+                # Move to next row after horizontal group
+                if current_x > 0:
+                    current_y += panel_height
+                    current_x = 0
+                    
+            elif layout_type == 'auto':
+                # Check if all panels in template group fit on current row
+                total_width = len(panels_in_group) * panel_width
+                if current_x + total_width > 24:
+                    current_y += panel_height
+                    current_x = 0
+                
+                # Place all panels of this template
+                for panel_group in panels_in_group:
+                    panel_group['x_pos'] = current_x
+                    panel_group['y_pos'] = current_y
+                    positioned_panels.append(panel_group)
+                    current_x += panel_width
+                    
+            else:  # sequential
+                # Continue placing panels sequentially
+                for panel_group in panels_in_group:
+                    panel_group['x_pos'] = current_x
+                    panel_group['y_pos'] = current_y
+                    positioned_panels.append(panel_group)
+                    current_x += panel_width
+                    
+                    # Wrap to next row if needed
+                    if current_x >= 24:
+                        current_x = 0
+                        current_y += panel_height
+        
+        return positioned_panels, current_x, current_y
     
     def generate_dashboard(self, csv_file: str, dashboard_title: str = None) -> Dict[str, Any]:
         """Generate Grafana dashboard from CSV input with dynamic targets"""
@@ -286,34 +403,44 @@ class GrafanaDashboardGenerator:
             # Get all rows for this row name
             row_data = df[df['Row'] == row_name].copy()
             
-            # Group by panels (rows with Panel_Title) and their additional targets
+            # Expand payloads into individual panels
+            expanded_row_data = self._expand_payloads(row_data)
+            
+            # Convert back to DataFrame for processing
+            expanded_df = pd.DataFrame(expanded_row_data)
+            
+            # Group by panels (rows with Panel_Title/Panel_Template) and their additional targets
             panel_groups = []
             current_panel = None
             
-            for _, row_config in row_data.iterrows():
+            for _, row_config in expanded_df.iterrows():
                 is_additional_target = str(row_config.get('Is_Additional_Target', '')).upper() == 'TRUE'
+                panel_title = row_config.get('Panel_Title', '')
+                panel_template = row_config.get('Panel_Template', '')
                 
-                if not is_additional_target and not pd.isna(row_config.get('Panel_Title', '')):
+                if not is_additional_target and (panel_title or panel_template):
                     # This is a new panel
                     if current_panel is not None:
                         panel_groups.append(current_panel)
                     current_panel = {
-                        'panel_config': row_config.to_dict(),
-                        'targets': [row_config.to_dict()]  # First target
+                        'panel_config': row_config,
+                        'targets': [row_config]  # First target
                     }
                 elif is_additional_target and current_panel is not None:
                     # This is an additional target for the current panel
-                    current_panel['targets'].append(row_config.to_dict())
+                    current_panel['targets'].append(row_config)
             
             # Add the last panel
             if current_panel is not None:
                 panel_groups.append(current_panel)
             
+            # Calculate layout positions for panels
+            positioned_panels, x_pos, current_y = self._calculate_layout_positions(panel_groups, 0, current_y)
+            
             # Create panels with their targets
-            x_pos = 0
-            for panel_group in panel_groups:
-                # Create the panel
-                panel = self._create_panel(panel_group['panel_config'], panel_id, x_pos, current_y)
+            for panel_group in positioned_panels:
+                # Create the panel with calculated position
+                panel = self._create_panel(panel_group['panel_config'], panel_id, panel_group['x_pos'], panel_group['y_pos'])
                 
                 # Add all targets to the panel
                 targets = []
@@ -327,16 +454,14 @@ class GrafanaDashboardGenerator:
                 panel['targets'] = targets
                 panels.append(panel)
                 panel_id += 1
-                x_pos += 5  # Move to next position
-                
-                # If we exceed width, move to next row
-                if x_pos >= 24:
-                    x_pos = 0
-                    current_y += 5
             
-            # Move to next row if we haven't already
-            if x_pos > 0:
-                current_y += 5
+            # Update current_y for next row
+            if positioned_panels:
+                # Get the maximum y position + height from this row's panels
+                max_y = max(p['y_pos'] for p in positioned_panels)
+                max_height = max(self.panel_styles.get(p['panel_config'].get('Panel_Template', ''), {}).get('grid_height', 5) 
+                               for p in positioned_panels)
+                current_y = max_y + max_height
         
         dashboard['panels'] = panels
         return dashboard

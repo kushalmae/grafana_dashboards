@@ -47,7 +47,7 @@
                     "mappings": [
                         {
                             "options": {
-                                "0": {
+                                "SAFE": {
                                     "color": "light-green",
                                     "index": 0
                                 },
@@ -55,7 +55,7 @@
                                     "color": "super-light-yellow",
                                     "index": 1
                                 },
-                                "2": {
+                                "NOMINAL": {
                                     "color": "light-orange",
                                     "index": 2
                                 },

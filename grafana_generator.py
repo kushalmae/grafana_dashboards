@@ -16,6 +16,7 @@ class GrafanaDashboardGenerator:
     
     def __init__(self):
         self.dashboard_template = self._get_base_template()
+        self.panel_styles = {}  # Will store panel styles from CSV
     
     def _get_base_template(self) -> Dict[str, Any]:
         """Base Grafana dashboard template"""
@@ -81,6 +82,81 @@ class GrafanaDashboardGenerator:
             "version": 1
         }
     
+    def load_panel_styles(self, styles_file: str):
+        """Load panel styles from CSV file"""
+        try:
+            styles_df = pd.read_csv(styles_file)
+            for _, row in styles_df.iterrows():
+                panel_title = row['Panel_Title']
+                self.panel_styles[panel_title] = {
+                    'grid_height': int(row.get('Grid_Height', 5)),
+                    'grid_width': int(row.get('Grid_Width', 5)),
+                    'mappings': self._parse_mappings(row.get('Mappings', '')),
+                    'thresholds': self._parse_thresholds(row.get('Thresholds', ''))
+                }
+            print(f"Loaded styles for {len(self.panel_styles)} panels")
+        except FileNotFoundError:
+            print(f"Warning: Styles file {styles_file} not found. Using default styles.")
+        except Exception as e:
+            print(f"Error loading styles: {e}. Using default styles.")
+    
+    def _parse_mappings(self, mappings_str: str) -> List[Dict[str, Any]]:
+        """Parse mapping string format: 'SAFE:light-green|NOMINAL:orange|FAULT:red'"""
+        if not mappings_str or pd.isna(mappings_str):
+            # Default mappings
+            return [{
+                "options": {
+                    "0": {"color": "light-green", "index": 0},
+                    "1": {"color": "super-light-yellow", "index": 1},
+                    "2": {"color": "light-orange", "index": 2},
+                    "3": {"color": "light-red", "index": 3},
+                    "4": {"color": "dark-red", "index": 4}
+                },
+                "type": "value"
+            }]
+        
+        # Parse custom mappings
+        options = {}
+        mappings = mappings_str.split('|')
+        for i, mapping in enumerate(mappings):
+            if ':' in mapping:
+                value, color = mapping.split(':', 1)
+                options[value] = {"color": color, "index": i}
+        
+        return [{
+            "options": options,
+            "type": "value"
+        }]
+    
+    def _parse_thresholds(self, thresholds_str: str) -> Dict[str, Any]:
+        """Parse threshold string format: '0:green|1:#EAB839|2:red'"""
+        if not thresholds_str or pd.isna(thresholds_str):
+            # Default thresholds
+            return {
+                "mode": "absolute",
+                "steps": [{"color": "transparent", "value": 0}]
+            }
+        
+        # Parse custom thresholds
+        steps = []
+        thresholds = thresholds_str.split('|')
+        for threshold in thresholds:
+            if ':' in threshold:
+                value_str, color = threshold.split(':', 1)
+                try:
+                    value = float(value_str)
+                    steps.append({"color": color, "value": value})
+                except ValueError:
+                    continue
+        
+        # Sort steps by value
+        steps.sort(key=lambda x: x['value'])
+        
+        return {
+            "mode": "absolute",
+            "steps": steps if steps else [{"color": "transparent", "value": 0}]
+        }
+    
     def _create_row_panel(self, row_name: str, row_id: int, y_pos: int) -> Dict[str, Any]:
         """Create a row panel"""
         return {
@@ -132,29 +208,38 @@ class GrafanaDashboardGenerator:
     
     def _create_panel(self, config: Dict[str, Any], panel_id: int, x_pos: int, y_pos: int) -> Dict[str, Any]:
         """Create a panel from configuration"""
+        panel_title = config.get('Panel_Title', '')
+        
+        # Get styles for this panel
+        panel_style = self.panel_styles.get(panel_title, {})
+        grid_height = panel_style.get('grid_height', 5)
+        grid_width = panel_style.get('grid_width', 5)
+        mappings = panel_style.get('mappings', [{
+            "options": {
+                "0": {"color": "light-green", "index": 0},
+                "1": {"color": "super-light-yellow", "index": 1},
+                "2": {"color": "light-orange", "index": 2},
+                "3": {"color": "light-red", "index": 3},
+                "4": {"color": "dark-red", "index": 4}
+            },
+            "type": "value"
+        }])
+        thresholds = panel_style.get('thresholds', {
+            "mode": "absolute",
+            "steps": [{"color": "transparent", "value": 0}]
+        })
+        
         return {
             "datasource": {"type": "influxdb", "uid": "${DataSource}"},
             "fieldConfig": {
                 "defaults": {
                     "color": {"mode": "thresholds"},
-                    "mappings": [{
-                        "options": {
-                            "0": {"color": "light-green", "index": 0},
-                            "1": {"color": "super-light-yellow", "index": 1},
-                            "2": {"color": "light-orange", "index": 2},
-                            "3": {"color": "light-red", "index": 3},
-                            "4": {"color": "dark-red", "index": 4}
-                        },
-                        "type": "value"
-                    }],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [{"color": "transparent", "value": 0}]
-                    }
+                    "mappings": mappings,
+                    "thresholds": thresholds
                 },
                 "overrides": []
             },
-            "gridPos": {"h": 5, "w": 5, "x": x_pos, "y": y_pos},
+            "gridPos": {"h": grid_height, "w": grid_width, "x": x_pos, "y": y_pos},
             "id": panel_id,
             "options": {
                 "colorMode": "background",
@@ -266,6 +351,9 @@ class GrafanaDashboardGenerator:
 def main():
     """Main function to run the generator"""
     generator = GrafanaDashboardGenerator()
+    
+    # Load panel styles
+    generator.load_panel_styles('panel_styles.csv')
     
     # Generate dashboard from CSV
     dashboard = generator.generate_dashboard(

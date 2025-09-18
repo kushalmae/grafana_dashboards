@@ -1,0 +1,5 @@
+Panel_Title,Grid_Height,Grid_Width,Mappings,Thresholds
+Test Panel 1,2,5,"SAFE:light-green|NOMINAL:orange|FAULT:red|1:yellow|2:dark-red","0:green|1:#EAB839"
+Test Panel 2,7,8,"ACTIVE:blue|STANDBY:green|ERROR:red","0:transparent|1:yellow|2:red"
+Test Panel 3,2,3,"SAFE:light-green|NOMINAL:orange|FAULT:red|1:yellow|2:dark-red","0:green|1:#EAB839"
+Test Panel 4,4,9,"ACTIVE:blue|STANDBY:green|ERROR:red","0:transparent|1:yellow|2:red"   

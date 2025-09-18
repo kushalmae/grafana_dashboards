@@ -1,10 +1,11 @@
 # Grafana Dashboard Generator
 
-A simple MVP tool to dynamically generate Grafana dashboards from Excel/CSV input.
+A flexible tool to dynamically generate Grafana dashboards from Excel/CSV input with custom mappings and styling.
 
 ## Files
 
-- `dashboard_config.csv` - Excel/CSV template for dashboard configuration
+- `dashboard_config.csv` - Panel structure and queries
+- `panel_styles.csv` - Panel mappings, thresholds, and grid sizes
 - `grafana_generator.py` - Python script to convert CSV to Grafana JSON
 - `requirements.txt` - Python dependencies
 - `generated_dashboard.json` - Output Grafana dashboard JSON
@@ -53,13 +54,25 @@ Row1,,,health_str,ert,HEALTH_CHECK,${scid},iox,TRUE
 Row1,,,mode_str,ert,OPERATION_MODE,${scid},iox,TRUE
 ```
 
+### panel_styles.csv Format
+```csv
+Panel_Title,Grid_Height,Grid_Width,Mappings,Thresholds
+Test Panel 1,5,5,"SAFE:light-green|NOMINAL:orange|FAULT:red|1:yellow|2:dark-red","0:green|1:#EAB839"
+Test Panel 2,6,8,"ACTIVE:blue|STANDBY:green|ERROR:red|UNKNOWN:gray|OFF:dark-red","0:transparent|1:yellow|2:red"
+```
+
 This example creates:
-- **Panel 1**: Single target (refId A) from STATE_MACH_TARGET_STATE
-- **Panel 2**: Four targets (refId A,B,C,D) from different tables:
+- **Panel 1**: 5×5 grid, SAFE/NOMINAL/FAULT mappings, single target
+- **Panel 2**: 6×8 grid, ACTIVE/STANDBY/ERROR mappings, four targets:
   - Target A: STATE_MACH_TARGET_STATE.eng_str
   - Target B: SYSTEM_STATUS.status_field  
   - Target C: HEALTH_CHECK.health_str
   - Target D: OPERATION_MODE.mode_str
+
+## Mapping Format
+- **Mappings**: `"VALUE:COLOR|VALUE2:COLOR2"` - Maps data values to colors
+- **Thresholds**: `"0:color1|1:color2"` - Numeric thresholds with colors
+- **Grid**: Height and width in Grafana grid units
 
 ## Features
 

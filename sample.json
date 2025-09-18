@@ -1,0 +1,307 @@
+{
+    "annotations": {
+        "list": [
+            {
+                "builtIn": 1,
+                "datasource": {
+                    "type": "grafana",
+                    "uid": "-- Grafana --"
+                },
+                "enable": true,
+                "hide": true,
+                "iconColor": "rgba(0, 211, 255, 1)",
+                "name": "Annotations & Alerts",
+                "type": "dashboard"
+            }
+        ]
+    },
+    "editable": true,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 0,
+    "id": 244,
+    "links": [],
+    "panels": [
+        {
+            "collapsed": false,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 0
+            },
+            "id": 3,
+            "panels": [],
+            "title": "Row1",
+            "type": "row"
+        },
+        {
+            "datasource": {
+                "type": "influxdb",
+                "uid": "${DataSource}"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [
+                        {
+                            "options": {
+                                "0": {
+                                    "color": "light-green",
+                                    "index": 0
+                                },
+                                "1": {
+                                    "color": "super-light-yellow",
+                                    "index": 1
+                                },
+                                "2": {
+                                    "color": "light-orange",
+                                    "index": 2
+                                },
+                                "3": {
+                                    "color": "light-red",
+                                    "index": 3
+                                },
+                                "4": {
+                                    "color": "dark-red",
+                                    "index": 4
+                                }
+                            },
+                            "type": "value"
+                        }
+                    ],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": 0
+                            },
+                            {
+                              "color": "#EAB839",
+                              "value": 1
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 5,
+                "w": 5,
+                "x": 0,
+                "y": 1
+            },
+            "id": 8,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                    "calcs": [
+                        "last"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showPercentChange": false,
+                "text": {
+                    "titleSize": 12,
+                    "valueSize": 25
+                },
+                "textMode": "value_and_name",
+                "wideLayout": true
+            },
+            "pluginVersion": "12.1.0-247000",
+            "targets": [
+                {
+                    "dataset": "iox",
+                    "editorMode": "code",
+                    "format": "table",
+                    "rawQuery": true,
+                    "rawSql": "SELECT\r\n  \"eng_str\" AS \" \",\r\n  from_unixtime(\"ert\")\r\nFROM\r\n  \"STATE_MACH_TARGET_STATE\"\r\nWHERE\r\n  \"ert\" >= $__timeFrom::bigint\r\n  AND \"ert\" <= $__timeTo::bigint\r\n  AND \"spacecraft_id\" = '${scid}'\r\nORDER BY \"ert\" DESC\r\n",
+                    "refId": "A",
+                    "sql": {
+                        "columns": [
+                            {
+                                "parameters": [],
+                                "type": "function"
+                            }
+                        ],
+                        "groupBy": [
+                            {
+                                "property": {
+                                    "type": "string"
+                                },
+                                "type": "groupBy"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "title": "Test",
+            "type": "state-timeline"
+        },
+        {
+            "datasource": {
+                "type": "influxdb",
+                "uid": "${DataSource}"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [
+                        {
+                            "options": {
+                                "0": {
+                                    "color": "light-green",
+                                    "index": 0
+                                },
+                                "1": {
+                                    "color": "super-light-yellow",
+                                    "index": 1
+                                },
+                                "2": {
+                                    "color": "light-orange",
+                                    "index": 2
+                                },
+                                "3": {
+                                    "color": "light-red",
+                                    "index": 3
+                                },
+                                "4": {
+                                    "color": "dark-red",
+                                    "index": 4
+                                }
+                            },
+                            "type": "value"
+                        }
+                    ],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "transparent",
+                                "value": 0
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 5,
+                "w": 5,
+                "x": 0,
+                "y": 1
+            },
+            "id": 8,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                    "calcs": [
+                        "last"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showPercentChange": false,
+                "text": {
+                    "titleSize": 12,
+                    "valueSize": 25
+                },
+                "textMode": "value_and_name",
+                "wideLayout": true
+            },
+            "pluginVersion": "12.1.0-247000",
+            "targets": [
+                {
+                    "dataset": "iox",
+                    "editorMode": "code",
+                    "format": "table",
+                    "rawQuery": true,
+                    "rawSql": "SELECT\r\n  \"eng_str\" AS \" \",\r\n  from_unixtime(\"ert\")\r\nFROM\r\n  \"STATE_MACH_TARGET_STATE\"\r\nWHERE\r\n  \"ert\" >= $__timeFrom::bigint\r\n  AND \"ert\" <= $__timeTo::bigint\r\n  AND \"spacecraft_id\" = '${scid}'\r\nORDER BY \"ert\" DESC\r\n",
+                    "refId": "A",
+                    "sql": {
+                        "columns": [
+                            {
+                                "parameters": [],
+                                "type": "function"
+                            }
+                        ],
+                        "groupBy": [
+                            {
+                                "property": {
+                                    "type": "string"
+                                },
+                                "type": "groupBy"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "title": "Test2",
+            "type": "state-timeline"
+        }
+    ],
+    "preload": false,
+    "schemaVersion": 41,
+    "tags": [],
+    "templating": {
+        "list": [
+            {
+                "current": {
+                    "text": "TM004DUP",
+                    "value": "TM004DUP"
+                },
+                "datasource": {
+                    "type": "influxdb",
+                    "uid": "${DataSource}"
+                },
+                "definition": "SELECT DISTINCT \"spacecraft_id\" \nFROM \"MDC_ACMODE\"\nWHERE \"spacecraft_id\" IS NOT NULL;",
+                "description": "",
+                "label": "Spacecraft",
+                "name": "scid",
+                "options": [],
+                "query": {
+                    "query": "SELECT DISTINCT \"spacecraft_id\" \nFROM \"MDC_ACMODE\"\nWHERE \"spacecraft_id\" IS NOT NULL;",
+                    "refId": "InfluxVariableQueryEditor-VariableQuery"
+                },
+                "refresh": 1,
+                "regex": "",
+                "type": "query"
+            },
+            {
+                "current": {
+                    "text": "influxdb-sql-thunder-max-telemetry-mr-30-b",
+                    "value": "eex74u67acirkd"
+                },
+                "label": "Data Source",
+                "name": "DataSource",
+                "options": [],
+                "query": "influxdb",
+                "refresh": 1,
+                "regex": "",
+                "type": "datasource"
+            }
+        ]
+    },
+    "time": {
+        "from": "2025-09-11T02:30:00.000Z",
+        "to": "2025-09-11T23:20:00.000Z"
+    },
+    "timepicker": {},
+    "timezone": "utc",
+    "title": "THDR FDIR Dashboard-Testing-Kushal",
+    "uid": "3fb54314-5b60-4c4d-afd7-3d3093b13a89",
+    "version": 22
+}

@@ -1,0 +1,6 @@
+Row,Panel_Title,Panel_Type,Eng_Str_Field,Time_Field,Table_Name,Spacecraft_ID,Dataset,Is_Additional_Target
+Row1,Test Panel 1,state-timeline,eng_str,ert,STATE_MACH_TARGET_STATE,${scid},iox,
+Row1,Test Panel 2,state-timeline,eng_str,ert,STATE_MACH_TARGET_STATE,${scid},iox,
+Row1,,,status_field,timestamp,SYSTEM_STATUS,${scid},iox,TRUE
+Row1,,,health_str,ert,HEALTH_CHECK,${scid},iox,TRUE
+Row1,,,mode_str,ert,OPERATION_MODE,${scid},iox,TRUE

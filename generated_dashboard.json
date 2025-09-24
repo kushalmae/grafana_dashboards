@@ -49,15 +49,18 @@
               "options": {
                 "SAFE": {
                   "color": "light-green",
-                  "index": 0
+                  "index": 0,
+                  "text": "System Safe"
                 },
                 "NOMINAL": {
                   "color": "orange",
-                  "index": 1
+                  "index": 1,
+                  "text": "Nominal Operation"
                 },
                 "FAULT": {
                   "color": "red",
-                  "index": 2
+                  "index": 2,
+                  "text": "System Fault"
                 }
               },
               "type": "value"
@@ -89,7 +92,7 @@
       "options": {
         "colorMode": "background",
         "graphMode": "none",
-        "justifyMode": "center",
+        "justifyMode": "auto",
         "orientation": "auto",
         "percentChangeColorMode": "standard",
         "reduceOptions": {
@@ -100,10 +103,6 @@
           "values": false
         },
         "showPercentChange": false,
-        "text": {
-          "titleSize": 12,
-          "valueSize": 25
-        },
         "textMode": "value_and_name",
         "wideLayout": true
       },
@@ -114,316 +113,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\r\n  \"eng_str\" AS \" \",\r\n  from_unixtime(\"ert\")\r\nFROM\r\n  \"STATE_MACH_TARGET_STATE_PL1\"\r\nWHERE\r\n  \"ert\" >= $__timeFrom::bigint\r\n  AND \"ert\" <= $__timeTo::bigint\r\n  AND \"spacecraft_id\" = 'PL1'\r\nORDER BY \"ert\" DESC\r\n",
-          "refId": "A",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ]
-          }
-        }
-      ],
-      "title": "Engine Status PL1",
-      "type": "state-timeline"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DataSource}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [
-            {
-              "options": {
-                "SAFE": {
-                  "color": "light-green",
-                  "index": 0
-                },
-                "NOMINAL": {
-                  "color": "orange",
-                  "index": 1
-                },
-                "FAULT": {
-                  "color": "red",
-                  "index": 2
-                }
-              },
-              "type": "value"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0.0
-              },
-              {
-                "color": "#EAB839",
-                "value": 1.0
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 6,
-        "x": 6,
-        "y": 1
-      },
-      "id": 3,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "last"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "text": {
-          "titleSize": 12,
-          "valueSize": 25
-        },
-        "textMode": "value_and_name",
-        "wideLayout": true
-      },
-      "pluginVersion": "12.1.0-247000",
-      "targets": [
-        {
-          "dataset": "iox",
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT\r\n  \"eng_str\" AS \" \",\r\n  from_unixtime(\"ert\")\r\nFROM\r\n  \"STATE_MACH_TARGET_STATE_PL2\"\r\nWHERE\r\n  \"ert\" >= $__timeFrom::bigint\r\n  AND \"ert\" <= $__timeTo::bigint\r\n  AND \"spacecraft_id\" = 'PL2'\r\nORDER BY \"ert\" DESC\r\n",
-          "refId": "A",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ]
-          }
-        }
-      ],
-      "title": "Engine Status PL2",
-      "type": "state-timeline"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DataSource}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [
-            {
-              "options": {
-                "SAFE": {
-                  "color": "light-green",
-                  "index": 0
-                },
-                "NOMINAL": {
-                  "color": "orange",
-                  "index": 1
-                },
-                "FAULT": {
-                  "color": "red",
-                  "index": 2
-                }
-              },
-              "type": "value"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0.0
-              },
-              {
-                "color": "#EAB839",
-                "value": 1.0
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 6,
-        "x": 12,
-        "y": 1
-      },
-      "id": 4,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "last"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "text": {
-          "titleSize": 12,
-          "valueSize": 25
-        },
-        "textMode": "value_and_name",
-        "wideLayout": true
-      },
-      "pluginVersion": "12.1.0-247000",
-      "targets": [
-        {
-          "dataset": "iox",
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT\r\n  \"eng_str\" AS \" \",\r\n  from_unixtime(\"ert\")\r\nFROM\r\n  \"STATE_MACH_TARGET_STATE_PL3\"\r\nWHERE\r\n  \"ert\" >= $__timeFrom::bigint\r\n  AND \"ert\" <= $__timeTo::bigint\r\n  AND \"spacecraft_id\" = 'PL3'\r\nORDER BY \"ert\" DESC\r\n",
-          "refId": "A",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ]
-          }
-        }
-      ],
-      "title": "Engine Status PL3",
-      "type": "state-timeline"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DataSource}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [
-            {
-              "options": {
-                "SAFE": {
-                  "color": "light-green",
-                  "index": 0
-                },
-                "NOMINAL": {
-                  "color": "orange",
-                  "index": 1
-                },
-                "FAULT": {
-                  "color": "red",
-                  "index": 2
-                }
-              },
-              "type": "value"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0.0
-              },
-              {
-                "color": "#EAB839",
-                "value": 1.0
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 6,
-        "x": 18,
-        "y": 1
-      },
-      "id": 5,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "last"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "text": {
-          "titleSize": 12,
-          "valueSize": 25
-        },
-        "textMode": "value_and_name",
-        "wideLayout": true
-      },
-      "pluginVersion": "12.1.0-247000",
-      "targets": [
-        {
-          "dataset": "iox",
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT\r\n  \"eng_str\" AS \" \",\r\n  from_unixtime(\"ert\")\r\nFROM\r\n  \"STATE_MACH_TARGET_STATE_PL4\"\r\nWHERE\r\n  \"ert\" >= $__timeFrom::bigint\r\n  AND \"ert\" <= $__timeTo::bigint\r\n  AND \"spacecraft_id\" = 'PL4'\r\nORDER BY \"ert\" DESC\r\n",
+          "rawSql": "SELECT\r\n  \"eng_str\" AS \"TARGET_STATE\",\r\n  from_unixtime(\"ert\")\r\nFROM\r\n  \"STATE_MACH_TARGET_STATE\"\r\nWHERE\r\n  \"ert\" >= $__timeFrom::bigint\r\n  AND \"ert\" <= $__timeTo::bigint\r\n  AND \"spacecraft_id\" = '${scid}'\r\nORDER BY \"ert\" DESC\r\n",
           "refId": "A",
           "sql": {
             "columns": [
@@ -447,7 +137,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\r\n  \"status_field\" AS \" \",\r\n  from_unixtime(\"timestamp\")\r\nFROM\r\n  \"SYSTEM_STATUS_${scid}\"\r\nWHERE\r\n  \"timestamp\" >= $__timeFrom::bigint\r\n  AND \"timestamp\" <= $__timeTo::bigint\r\n  AND \"spacecraft_id\" = '${scid}'\r\nORDER BY \"timestamp\" DESC\r\n",
+          "rawSql": "SELECT\r\n  \"status_field\" AS \"STATUS\",\r\n  from_unixtime(\"timestamp\")\r\nFROM\r\n  \"SYSTEM_STATUS\"\r\nWHERE\r\n  \"timestamp\" >= $__timeFrom::bigint\r\n  AND \"timestamp\" <= $__timeTo::bigint\r\n  AND \"spacecraft_id\" = '${scid}'\r\nORDER BY \"timestamp\" DESC\r\n",
           "refId": "B",
           "sql": {
             "columns": [
@@ -471,7 +161,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\r\n  \"health_str\" AS \" \",\r\n  from_unixtime(\"ert\")\r\nFROM\r\n  \"HEALTH_CHECK_${scid}\"\r\nWHERE\r\n  \"ert\" >= $__timeFrom::bigint\r\n  AND \"ert\" <= $__timeTo::bigint\r\n  AND \"spacecraft_id\" = '${scid}'\r\nORDER BY \"ert\" DESC\r\n",
+          "rawSql": "SELECT\r\n  \"health_str\" AS \"HEALTH\",\r\n  from_unixtime(\"ert\")\r\nFROM\r\n  \"HEALTH_CHECK\"\r\nWHERE\r\n  \"ert\" >= $__timeFrom::bigint\r\n  AND \"ert\" <= $__timeTo::bigint\r\n  AND \"spacecraft_id\" = '${scid}'\r\nORDER BY \"ert\" DESC\r\n",
           "refId": "C",
           "sql": {
             "columns": [
@@ -491,7 +181,7 @@
           }
         }
       ],
-      "title": "Engine Status PL4",
+      "title": "Engine Status",
       "type": "state-timeline"
     },
     {
@@ -502,7 +192,7 @@
         "x": 0,
         "y": 4
       },
-      "id": 6,
+      "id": 3,
       "panels": [],
       "title": "Row2",
       "type": "row"
@@ -522,19 +212,23 @@
               "options": {
                 "FULL": {
                   "color": "blue",
-                  "index": 0
+                  "index": 0,
+                  "text": "Tank Full"
                 },
                 "MEDIUM": {
                   "color": "yellow",
-                  "index": 1
+                  "index": 1,
+                  "text": "Medium Level"
                 },
                 "LOW": {
                   "color": "orange",
-                  "index": 2
+                  "index": 2,
+                  "text": "Low Level"
                 },
                 "EMPTY": {
                   "color": "red",
-                  "index": 3
+                  "index": 3,
+                  "text": "Tank Empty"
                 }
               },
               "type": "value"
@@ -566,11 +260,11 @@
         "x": 0,
         "y": 5
       },
-      "id": 7,
+      "id": 4,
       "options": {
         "colorMode": "background",
         "graphMode": "none",
-        "justifyMode": "center",
+        "justifyMode": "auto",
         "orientation": "auto",
         "percentChangeColorMode": "standard",
         "reduceOptions": {
@@ -581,10 +275,6 @@
           "values": false
         },
         "showPercentChange": false,
-        "text": {
-          "titleSize": 12,
-          "valueSize": 25
-        },
         "textMode": "value_and_name",
         "wideLayout": true
       },
@@ -595,118 +285,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\r\n  \"fuel_level\" AS \" \",\r\n  from_unixtime(\"ert\")\r\nFROM\r\n  \"FUEL_SYSTEM_PL1\"\r\nWHERE\r\n  \"ert\" >= $__timeFrom::bigint\r\n  AND \"ert\" <= $__timeTo::bigint\r\n  AND \"spacecraft_id\" = 'PL1'\r\nORDER BY \"ert\" DESC\r\n",
-          "refId": "A",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ]
-          }
-        }
-      ],
-      "title": "Fuel Level PL1",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DataSource}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [
-            {
-              "options": {
-                "FULL": {
-                  "color": "blue",
-                  "index": 0
-                },
-                "MEDIUM": {
-                  "color": "yellow",
-                  "index": 1
-                },
-                "LOW": {
-                  "color": "orange",
-                  "index": 2
-                },
-                "EMPTY": {
-                  "color": "red",
-                  "index": 3
-                }
-              },
-              "type": "value"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue",
-                "value": 0.0
-              },
-              {
-                "color": "orange",
-                "value": 50.0
-              },
-              {
-                "color": "red",
-                "value": 90.0
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 5,
-        "x": 5,
-        "y": 5
-      },
-      "id": 8,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "last"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "text": {
-          "titleSize": 12,
-          "valueSize": 25
-        },
-        "textMode": "value_and_name",
-        "wideLayout": true
-      },
-      "pluginVersion": "12.1.0-247000",
-      "targets": [
-        {
-          "dataset": "iox",
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT\r\n  \"fuel_level\" AS \" \",\r\n  from_unixtime(\"ert\")\r\nFROM\r\n  \"FUEL_SYSTEM_PL2\"\r\nWHERE\r\n  \"ert\" >= $__timeFrom::bigint\r\n  AND \"ert\" <= $__timeTo::bigint\r\n  AND \"spacecraft_id\" = 'PL2'\r\nORDER BY \"ert\" DESC\r\n",
+          "rawSql": "SELECT\r\n  \"fuel_level\" AS \"FUEL_LEVEL\",\r\n  from_unixtime(\"ert\")\r\nFROM\r\n  \"FUEL_SYSTEM\"\r\nWHERE\r\n  \"ert\" >= $__timeFrom::bigint\r\n  AND \"ert\" <= $__timeTo::bigint\r\n  AND \"spacecraft_id\" = '${scid}'\r\nORDER BY \"ert\" DESC\r\n",
           "refId": "A",
           "sql": {
             "columns": [
@@ -730,7 +309,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\r\n  \"fuel_temp\" AS \" \",\r\n  from_unixtime(\"ert\")\r\nFROM\r\n  \"FUEL_TEMP_${scid}\"\r\nWHERE\r\n  \"ert\" >= $__timeFrom::bigint\r\n  AND \"ert\" <= $__timeTo::bigint\r\n  AND \"spacecraft_id\" = '${scid}'\r\nORDER BY \"ert\" DESC\r\n",
+          "rawSql": "SELECT\r\n  \"fuel_temp\" AS \"FUEL_TEMP\",\r\n  from_unixtime(\"ert\")\r\nFROM\r\n  \"FUEL_TEMP\"\r\nWHERE\r\n  \"ert\" >= $__timeFrom::bigint\r\n  AND \"ert\" <= $__timeTo::bigint\r\n  AND \"spacecraft_id\" = '${scid}'\r\nORDER BY \"ert\" DESC\r\n",
           "refId": "B",
           "sql": {
             "columns": [
@@ -750,7 +329,7 @@
           }
         }
       ],
-      "title": "Fuel Level PL2",
+      "title": "Fuel Level",
       "type": "stat"
     },
     {
@@ -768,19 +347,23 @@
               "options": {
                 "FULL": {
                   "color": "blue",
-                  "index": 0
+                  "index": 0,
+                  "text": "Tank Full"
                 },
                 "MEDIUM": {
                   "color": "yellow",
-                  "index": 1
+                  "index": 1,
+                  "text": "Medium Level"
                 },
                 "LOW": {
                   "color": "orange",
-                  "index": 2
+                  "index": 2,
+                  "text": "Low Level"
                 },
                 "EMPTY": {
                   "color": "red",
-                  "index": 3
+                  "index": 3,
+                  "text": "Tank Empty"
                 }
               },
               "type": "value"
@@ -809,14 +392,14 @@
       "gridPos": {
         "h": 4,
         "w": 6,
-        "x": 10,
-        "y": 5
+        "x": 0,
+        "y": 8
       },
-      "id": 9,
+      "id": 5,
       "options": {
         "colorMode": "background",
         "graphMode": "none",
-        "justifyMode": "center",
+        "justifyMode": "auto",
         "orientation": "auto",
         "percentChangeColorMode": "standard",
         "reduceOptions": {
@@ -827,10 +410,6 @@
           "values": false
         },
         "showPercentChange": false,
-        "text": {
-          "titleSize": 12,
-          "valueSize": 25
-        },
         "textMode": "value_and_name",
         "wideLayout": true
       },
@@ -841,118 +420,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\r\n  \"fuel_level\" AS \" \",\r\n  from_unixtime(\"ert\")\r\nFROM\r\n  \"FUEL_SYSTEM_PL1\"\r\nWHERE\r\n  \"ert\" >= $__timeFrom::bigint\r\n  AND \"ert\" <= $__timeTo::bigint\r\n  AND \"spacecraft_id\" = 'PL1'\r\nORDER BY \"ert\" DESC\r\n",
-          "refId": "A",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ]
-          }
-        }
-      ],
-      "title": "Fuel Level2 PL1",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DataSource}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [
-            {
-              "options": {
-                "FULL": {
-                  "color": "blue",
-                  "index": 0
-                },
-                "MEDIUM": {
-                  "color": "yellow",
-                  "index": 1
-                },
-                "LOW": {
-                  "color": "orange",
-                  "index": 2
-                },
-                "EMPTY": {
-                  "color": "red",
-                  "index": 3
-                }
-              },
-              "type": "value"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue",
-                "value": 0.0
-              },
-              {
-                "color": "orange",
-                "value": 50.0
-              },
-              {
-                "color": "red",
-                "value": 90.0
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 16,
-        "y": 5
-      },
-      "id": 10,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "last"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "text": {
-          "titleSize": 12,
-          "valueSize": 25
-        },
-        "textMode": "value_and_name",
-        "wideLayout": true
-      },
-      "pluginVersion": "12.1.0-247000",
-      "targets": [
-        {
-          "dataset": "iox",
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT\r\n  \"fuel_level\" AS \" \",\r\n  from_unixtime(\"ert\")\r\nFROM\r\n  \"FUEL_SYSTEM_PL2\"\r\nWHERE\r\n  \"ert\" >= $__timeFrom::bigint\r\n  AND \"ert\" <= $__timeTo::bigint\r\n  AND \"spacecraft_id\" = 'PL2'\r\nORDER BY \"ert\" DESC\r\n",
+          "rawSql": "SELECT\r\n  \"fuel_level\" AS \"FUEL_LEVEL2\",\r\n  from_unixtime(\"ert\")\r\nFROM\r\n  \"FUEL_SYSTEM_2\"\r\nWHERE\r\n  \"ert\" >= $__timeFrom::bigint\r\n  AND \"ert\" <= $__timeTo::bigint\r\n  AND \"spacecraft_id\" = '${scid}'\r\nORDER BY \"ert\" DESC\r\n",
           "refId": "A",
           "sql": {
             "columns": [
@@ -976,7 +444,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\r\n  \"fuel_temp\" AS \" \",\r\n  from_unixtime(\"ert\")\r\nFROM\r\n  \"FUEL_TEMP_${scid}\"\r\nWHERE\r\n  \"ert\" >= $__timeFrom::bigint\r\n  AND \"ert\" <= $__timeTo::bigint\r\n  AND \"spacecraft_id\" = '${scid}'\r\nORDER BY \"ert\" DESC\r\n",
+          "rawSql": "SELECT\r\n  \"fuel_temp\" AS \"FUEL_TEMP2\",\r\n  from_unixtime(\"ert\")\r\nFROM\r\n  \"FUEL_TEMP_2\"\r\nWHERE\r\n  \"ert\" >= $__timeFrom::bigint\r\n  AND \"ert\" <= $__timeTo::bigint\r\n  AND \"spacecraft_id\" = '${scid}'\r\nORDER BY \"ert\" DESC\r\n",
           "refId": "B",
           "sql": {
             "columns": [
@@ -996,7 +464,7 @@
           }
         }
       ],
-      "title": "Fuel Level2 PL2",
+      "title": "Fuel Level2",
       "type": "stat"
     }
   ],
@@ -1048,7 +516,7 @@
   },
   "timepicker": {},
   "timezone": "utc",
-  "title": "Generated THDR FDIR Dashboard",
-  "uid": "9944b25f-b611-4c6c-89f3-2dc7b94d1736",
+  "title": "Generated Dashboard",
+  "uid": "1963b245-e792-4d44-9111-87c7ffee3aec",
   "version": 1
 }

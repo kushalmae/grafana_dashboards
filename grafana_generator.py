@@ -12,7 +12,27 @@ from typing import Dict, List, Any
 
 
 class GrafanaDashboardGenerator:
-    """Simple generator for Grafana dashboards from Excel/CSV input"""
+    """
+    Grafana Dashboard Generator
+    
+    Generates Grafana dashboards from CSV configuration with support for:
+    - Flexible layout strategies (horizontal, sequential, auto)
+    - Custom panel styles and mappings
+    - Multiple targets per panel
+    """
+    
+    # Grid system constants
+    GRAFANA_GRID_WIDTH = 24
+    DEFAULT_PANEL_WIDTH = 5
+    DEFAULT_PANEL_HEIGHT = 5
+    
+    # Supported reference IDs for targets (up to 8 targets per panel)
+    TARGET_REF_IDS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
+    
+    # Layout types
+    LAYOUT_HORIZONTAL = 'horizontal'
+    LAYOUT_SEQUENTIAL = 'sequential'
+    LAYOUT_AUTO = 'auto'
     
     def __init__(self):
         self.dashboard_template = self._get_base_template()
@@ -82,46 +102,60 @@ class GrafanaDashboardGenerator:
             "version": 1
         }
     
-    def load_panel_styles(self, styles_file: str):
-        """Load panel styles from CSV file"""
-        try:
-            styles_df = pd.read_csv(styles_file)
-            for _, row in styles_df.iterrows():
-                panel_title = row['Panel_Template']
-                self.panel_styles[panel_title] = {
-                    'grid_height': int(row.get('Grid_Height', 5)),
-                    'grid_width': int(row.get('Grid_Width', 5)),
+    # ============================================================================
+    # CONFIGURATION AND STYLES MANAGEMENT
+    # ============================================================================
+    
+    def _load_panel_styles_from_config(self, config_df: pd.DataFrame):
+        """
+        Load panel styles from the main configuration DataFrame.
+        
+        Extracts style information from rows that have Panel_Template and style columns.
+        
+        Args:
+            config_df: Main configuration DataFrame containing style columns
+        """
+        # Filter rows that have panel templates and style information
+        style_rows = config_df[
+            (config_df['Panel_Template'].notna()) & 
+            (config_df['Panel_Template'] != '') &
+            (config_df['Grid_Height'].notna() | config_df['Grid_Width'].notna())
+        ]
+        
+        for _, row in style_rows.iterrows():
+            panel_template = row['Panel_Template']
+            if panel_template not in self.panel_styles:
+                self.panel_styles[panel_template] = {
+                    'grid_height': int(row.get('Grid_Height', self.DEFAULT_PANEL_HEIGHT)) if pd.notna(row.get('Grid_Height')) else self.DEFAULT_PANEL_HEIGHT,
+                    'grid_width': int(row.get('Grid_Width', self.DEFAULT_PANEL_WIDTH)) if pd.notna(row.get('Grid_Width')) else self.DEFAULT_PANEL_WIDTH,
                     'mappings': self._parse_mappings(row.get('Mappings', '')),
                     'thresholds': self._parse_thresholds(row.get('Thresholds', ''))
                 }
-            print(f"Loaded styles for {len(self.panel_styles)} panels")
-        except FileNotFoundError:
-            print(f"Warning: Styles file {styles_file} not found. Using default styles.")
-        except Exception as e:
-            print(f"Error loading styles: {e}. Using default styles.")
+        
+        print(f"Loaded styles for {len(self.panel_styles)} panels from configuration")
     
     def _parse_mappings(self, mappings_str: str) -> List[Dict[str, Any]]:
-        """Parse mapping string format: 'SAFE:light-green|NOMINAL:orange|FAULT:red'"""
+        """Parse mapping string format: 'SAFE:light-green:Payload Safe|NOMINAL:orange:Nominal State|FAULT:red:Fault State'"""
         if not mappings_str or pd.isna(mappings_str):
-            # Default mappings
-            return [{
-                "options": {
-                    "0": {"color": "light-green", "index": 0},
-                    "1": {"color": "super-light-yellow", "index": 1},
-                    "2": {"color": "light-orange", "index": 2},
-                    "3": {"color": "light-red", "index": 3},
-                    "4": {"color": "dark-red", "index": 4}
-                },
-                "type": "value"
-            }]
+            # Empty mappings by default
+            return []
         
         # Parse custom mappings
         options = {}
         mappings = mappings_str.split('|')
+        
         for i, mapping in enumerate(mappings):
             if ':' in mapping:
-                value, color = mapping.split(':', 1)
-                options[value] = {"color": color, "index": i}
+                parts = mapping.split(':', 2)  # Split into max 3 parts: value:color:text
+                value = parts[0]
+                color = parts[1] if len(parts) > 1 else "green"
+                text = parts[2] if len(parts) > 2 else value  # Use value as text if not specified
+                
+                options[value] = {
+                    "color": color, 
+                    "index": i,
+                    "text": text
+                }
         
         return [{
             "options": options,
@@ -174,25 +208,30 @@ class GrafanaDashboardGenerator:
         time_field = config.get('Time_Field', 'ert')
         table_name = config.get('Table_Name', 'STATE_MACH_TARGET_STATE')
         spacecraft_id = config.get('Spacecraft_ID', '${scid}')
+        column_alias = config.get('Column_Alias', '')
         
         # Handle NaN values from pandas
         if pd.isna(eng_str_field): eng_str_field = 'eng_str'
         if pd.isna(time_field): time_field = 'ert'
         if pd.isna(table_name): table_name = 'STATE_MACH_TARGET_STATE'
         if pd.isna(spacecraft_id): spacecraft_id = '${scid}'
+        if pd.isna(column_alias): column_alias = ''
+        
+        # Use column alias if provided, otherwise use empty string (default behavior)
+        alias_part = f'"{column_alias}"' if column_alias else '" "'
         
         # Build the SQL query with proper formatting
-        sql_query = f"""SELECT\r\n  "{eng_str_field}" AS " ",\r\n  from_unixtime("{time_field}")\r\nFROM\r\n  "{table_name}"\r\nWHERE\r\n  "{time_field}" >= $__timeFrom::bigint\r\n  AND "{time_field}" <= $__timeTo::bigint\r\n  AND "spacecraft_id" = '{spacecraft_id}'\r\nORDER BY "{time_field}" DESC\r\n"""
+        sql_query = f"""SELECT\r\n  "{eng_str_field}" AS {alias_part},\r\n  from_unixtime("{time_field}")\r\nFROM\r\n  "{table_name}"\r\nWHERE\r\n  "{time_field}" >= $__timeFrom::bigint\r\n  AND "{time_field}" <= $__timeTo::bigint\r\n  AND "spacecraft_id" = '{spacecraft_id}'\r\nORDER BY "{time_field}" DESC\r\n"""
         
         return sql_query
     
     def _create_target(self, config: Dict[str, Any], ref_id: str) -> Dict[str, Any]:
         """Create a single target from configuration"""
-        dataset = config.get('Dataset', 'iox')
-        if pd.isna(dataset): dataset = 'iox'
+        # dataset = config.get('Dataset', 'iox')
+        # if pd.isna(dataset): dataset = 'iox'
         
         target = {
-            "dataset": dataset,
+            "dataset": "iox",
             "editorMode": "code",
             "format": "table",
             "rawQuery": True,
@@ -215,16 +254,7 @@ class GrafanaDashboardGenerator:
         panel_style = self.panel_styles.get(panel_template, {})
         grid_height = panel_style.get('grid_height', 5)
         grid_width = panel_style.get('grid_width', 5)
-        mappings = panel_style.get('mappings', [{
-            "options": {
-                "0": {"color": "light-green", "index": 0},
-                "1": {"color": "super-light-yellow", "index": 1},
-                "2": {"color": "light-orange", "index": 2},
-                "3": {"color": "light-red", "index": 3},
-                "4": {"color": "dark-red", "index": 4}
-            },
-            "type": "value"
-        }])
+        mappings = panel_style.get('mappings', [])
         thresholds = panel_style.get('thresholds', {
             "mode": "absolute",
             "steps": [{"color": "transparent", "value": 0}]
@@ -245,12 +275,11 @@ class GrafanaDashboardGenerator:
             "options": {
                 "colorMode": "background",
                 "graphMode": "none",
-                "justifyMode": "center",
+                "justifyMode": "auto",
                 "orientation": "auto",
                 "percentChangeColorMode": "standard",
                 "reduceOptions": {"calcs": ["last"], "fields": "", "values": False},
                 "showPercentChange": False,
-                "text": {"titleSize": 12, "valueSize": 25},
                 "textMode": "value_and_name",
                 "wideLayout": True
             },
@@ -260,42 +289,31 @@ class GrafanaDashboardGenerator:
             "type": config.get('Panel_Type', 'state-timeline')
         }
     
-    def _expand_payloads(self, row_data) -> List[Dict[str, Any]]:
-        """Expand payload templates into individual panels"""
-        expanded_panels = []
-        
-        for _, row_config in row_data.iterrows():
-            payloads_str = row_config.get('Payloads', '')
-            panel_template = row_config.get('Panel_Template', '')
-            is_additional_target = str(row_config.get('Is_Additional_Target', '')).upper() == 'TRUE'
-            
-            if payloads_str and not pd.isna(payloads_str) and panel_template and not is_additional_target:
-                # Split payloads: "PL1|PL2|PL3|PL4"
-                payloads = [p.strip() for p in payloads_str.split('|') if p.strip()]
-                
-                for payload in payloads:
-                    # Create individual panel for each payload
-                    new_config = row_config.copy()
-                    new_config['Panel_Title'] = f"{panel_template} {payload}"
-                    
-                    # Replace ${scid} with payload in table names and spacecraft_id
-                    for field in ['Table_Name', 'Spacecraft_ID']:
-                        field_value = str(row_config.get(field, ''))
-                        if '${scid}' in field_value:
-                            new_config[field] = field_value.replace('${scid}', payload)
-                    
-                    expanded_panels.append(new_config.to_dict())
-            else:
-                # Regular panel (no payload expansion) or additional target
-                expanded_panels.append(row_config.to_dict())
-        
-        return expanded_panels
+
+    # ============================================================================
+    # LAYOUT AND POSITIONING LOGIC  
+    # ============================================================================
 
     def _calculate_layout_positions(self, panel_groups, current_x=0, current_y=0):
-        """Calculate panel positions based on layout strategy"""
+        """
+        Calculate panel positions based on layout strategy.
+        
+        Layout Types:
+        - horizontal: All panels of same template on same row
+        - sequential: Continue from current position, wrap when needed  
+        - auto: Smart grouping - new row if template group doesn't fit
+        
+        Args:
+            panel_groups: List of panel group configurations
+            current_x: Starting X position (0-23)
+            current_y: Starting Y position  
+            
+        Returns:
+            Tuple of (positioned_panels, final_x, final_y)
+        """
         positioned_panels = []
         
-        # Group panels by template and layout to handle payloads together
+        # Group panels by template and layout to handle them together
         template_groups = {}
         for panel_group in panel_groups:
             panel_config = panel_group['panel_config']
@@ -324,8 +342,8 @@ class GrafanaDashboardGenerator:
             panel_width = panel_style.get('grid_width', 5)
             panel_height = panel_style.get('grid_height', 5)
             
-            if layout_type == 'horizontal':
-                # For horizontal layout, force new row and place all payloads side by side
+            if layout_type == self.LAYOUT_HORIZONTAL:
+                # For horizontal layout, force new row and place all panels side by side
                 if current_x > 0:
                     current_y += panel_height
                     current_x = 0
@@ -337,8 +355,8 @@ class GrafanaDashboardGenerator:
                     positioned_panels.append(panel_group)
                     current_x += panel_width
                     
-                    # Check if we exceed width
-                    if current_x >= 24:
+                    # Check if we exceed Grafana grid width
+                    if current_x >= self.GRAFANA_GRID_WIDTH:
                         current_x = 0
                         current_y += panel_height
                 
@@ -347,10 +365,10 @@ class GrafanaDashboardGenerator:
                     current_y += panel_height
                     current_x = 0
                     
-            elif layout_type == 'auto':
+            elif layout_type == self.LAYOUT_AUTO:
                 # Check if all panels in template group fit on current row
                 total_width = len(panels_in_group) * panel_width
-                if current_x + total_width > 24:
+                if current_x + total_width > self.GRAFANA_GRID_WIDTH:
                     current_y += panel_height
                     current_x = 0
                 
@@ -370,16 +388,23 @@ class GrafanaDashboardGenerator:
                     current_x += panel_width
                     
                     # Wrap to next row if needed
-                    if current_x >= 24:
+                    if current_x >= self.GRAFANA_GRID_WIDTH:
                         current_x = 0
                         current_y += panel_height
         
         return positioned_panels, current_x, current_y
     
+    # ============================================================================
+    # DASHBOARD GENERATION
+    # ============================================================================
+    
     def generate_dashboard(self, csv_file: str, dashboard_title: str = None) -> Dict[str, Any]:
         """Generate Grafana dashboard from CSV input with dynamic targets"""
-        # Read CSV
-        df = pd.read_csv(csv_file)
+        # Read CSV configuration
+        config_dataframe = pd.read_csv(csv_file)
+        
+        # Load panel styles from the configuration
+        self._load_panel_styles_from_config(config_dataframe)
         
         # Initialize dashboard
         dashboard = self.dashboard_template.copy()
@@ -391,7 +416,7 @@ class GrafanaDashboardGenerator:
         panel_id = 1
         
         # Group by rows
-        rows = df['Row'].unique()
+        rows = config_dataframe['Row'].unique()
         
         for row_name in rows:
             # Add row panel
@@ -401,19 +426,13 @@ class GrafanaDashboardGenerator:
             current_y += 1
             
             # Get all rows for this row name
-            row_data = df[df['Row'] == row_name].copy()
-            
-            # Expand payloads into individual panels
-            expanded_row_data = self._expand_payloads(row_data)
-            
-            # Convert back to DataFrame for processing
-            expanded_df = pd.DataFrame(expanded_row_data)
+            row_data = config_dataframe[config_dataframe['Row'] == row_name].copy()
             
             # Group by panels (rows with Panel_Title/Panel_Template) and their additional targets
             panel_groups = []
             current_panel = None
             
-            for _, row_config in expanded_df.iterrows():
+            for _, row_config in row_data.iterrows():
                 is_additional_target = str(row_config.get('Is_Additional_Target', '')).upper() == 'TRUE'
                 panel_title = row_config.get('Panel_Title', '')
                 panel_template = row_config.get('Panel_Template', '')
@@ -444,11 +463,10 @@ class GrafanaDashboardGenerator:
                 
                 # Add all targets to the panel
                 targets = []
-                ref_ids = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']  # Support up to 8 targets
                 
                 for i, target_config in enumerate(panel_group['targets']):
-                    if i < len(ref_ids):
-                        target = self._create_target(target_config, ref_ids[i])
+                    if i < len(self.TARGET_REF_IDS):
+                        target = self._create_target(target_config, self.TARGET_REF_IDS[i])
                         targets.append(target)
                 
                 panel['targets'] = targets
@@ -477,13 +495,10 @@ def main():
     """Main function to run the generator"""
     generator = GrafanaDashboardGenerator()
     
-    # Load panel styles
-    generator.load_panel_styles('panel_styles.csv')
-    
-    # Generate dashboard from CSV
+    # Generate dashboard from CSV (styles are now loaded from the same CSV)
     dashboard = generator.generate_dashboard(
         'dashboard_config.csv',
-        'Generated THDR FDIR Dashboard'
+        'Generated Dashboard'
     )
     
     # Save to file

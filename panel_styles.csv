@@ -1,4 +1,0 @@
-Panel_Template,Grid_Height,Grid_Width,Mappings,Thresholds
-Engine Status,3,6,"SAFE:light-green|NOMINAL:orange|FAULT:red","0:green|1:#EAB839"
-Fuel Level,3,5,"FULL:blue|MEDIUM:yellow|LOW:orange|EMPTY:red","0:blue|50:orange|90:red"
-Fuel Level2,4,6,"FULL:blue|MEDIUM:yellow|LOW:orange|EMPTY:red","0:blue|50:orange|90:red"

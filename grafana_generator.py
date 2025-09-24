@@ -428,25 +428,33 @@ class GrafanaDashboardGenerator:
             # Get all rows for this row name
             row_data = config_dataframe[config_dataframe['Row'] == row_name].copy()
             
-            # Group by panels (rows with Panel_Title/Panel_Template) and their additional targets
+            # Group by panels (automatically detect new panels vs additional targets)
             panel_groups = []
             current_panel = None
             
             for _, row_config in row_data.iterrows():
-                is_additional_target = str(row_config.get('Is_Additional_Target', '')).upper() == 'TRUE'
                 panel_title = row_config.get('Panel_Title', '')
                 panel_template = row_config.get('Panel_Template', '')
                 
-                if not is_additional_target and (panel_title or panel_template):
-                    # This is a new panel
+                # Auto-detect: New panel if Panel_Title or Panel_Template is specified
+                # Additional target if both Panel_Title and Panel_Template are empty/NaN
+                has_panel_info = bool(panel_title) or bool(panel_template)
+                
+                # Handle NaN values from pandas
+                if pd.isna(panel_title): panel_title = ''
+                if pd.isna(panel_template): panel_template = ''
+                has_panel_info = bool(panel_title.strip()) or bool(panel_template.strip())
+                
+                if has_panel_info:
+                    # This is a new panel (has Panel_Title or Panel_Template)
                     if current_panel is not None:
                         panel_groups.append(current_panel)
                     current_panel = {
                         'panel_config': row_config,
                         'targets': [row_config]  # First target
                     }
-                elif is_additional_target and current_panel is not None:
-                    # This is an additional target for the current panel
+                elif current_panel is not None:
+                    # This is an additional target (no Panel_Title or Panel_Template)
                     current_panel['targets'].append(row_config)
             
             # Add the last panel

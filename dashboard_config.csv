@@ -1,8 +1,8 @@
-Row,Panel_Template,Panel_Type,Eng_Str_Field,Time_Field,Table_Name,Spacecraft_ID,Column_Alias,Layout,Is_Additional_Target,Grid_Height,Grid_Width,Mappings,Thresholds
-Row1,Engine Status,state-timeline,eng_str,ert,STATE_MACH_TARGET_STATE,${scid},TARGET_STATE,horizontal,,3,6,SAFE:light-green:System Safe|NOMINAL:orange:Nominal Operation|FAULT:red:System Fault,0:green|1:#EAB839
-Row1,,,status_field,timestamp,SYSTEM_STATUS,${scid},STATUS,,TRUE,,,,
-Row1,,,health_str,ert,HEALTH_CHECK,${scid},HEALTH,,TRUE,,,,
-Row2,Fuel Level,stat,fuel_level,ert,FUEL_SYSTEM,${scid},FUEL_LEVEL,horizontal,,3,5,FULL:blue:Tank Full|MEDIUM:yellow:Medium Level|LOW:orange:Low Level|EMPTY:red:Tank Empty,0:blue|50:orange|90:red
-Row2,,,fuel_temp,ert,FUEL_TEMP,${scid},FUEL_TEMP,,TRUE,,,,
-Row2,Fuel Level2,stat,fuel_level,ert,FUEL_SYSTEM_2,${scid},FUEL_LEVEL2,horizontal,,4,6,FULL:blue:Tank Full|MEDIUM:yellow:Medium Level|LOW:orange:Low Level|EMPTY:red:Tank Empty,0:blue|50:orange|90:red
-Row2,,,fuel_temp,ert,FUEL_TEMP_2,${scid},FUEL_TEMP2,,TRUE,,,,
+Row,Panel_Template,Panel_Type,Eng_Str_Field,Time_Field,Table_Name,Spacecraft_ID,Column_Alias,Layout,Grid_Height,Grid_Width,Mappings,Thresholds
+Row1,Engine Status,state-timeline,eng_str,ert,STATE_MACH_TARGET_STATE,${scid},TARGET_STATE,horizontal,3,6,SAFE:light-green:System Safe|NOMINAL:orange:Nominal Operation|FAULT:red:System Fault,0:green|1:#EAB839
+Row1,,,status_field,timestamp,SYSTEM_STATUS,${scid},STATUS,,,,
+Row1,,,health_str,ert,HEALTH_CHECK,${scid},HEALTH,,,,
+Row2,Fuel Level,stat,fuel_level,ert,FUEL_SYSTEM,${scid},FUEL_LEVEL,horizontal,3,5,FULL:blue:Tank Full|MEDIUM:yellow:Medium Level|LOW:orange:Low Level|EMPTY:red:Tank Empty,0:blue|50:orange|90:red
+Row2,,,fuel_temp,ert,FUEL_TEMP,${scid},FUEL_TEMP,,,,
+Row2,Fuel Level2,stat,fuel_level,ert,FUEL_SYSTEM_2,${scid},FUEL_LEVEL2,horizontal,4,6,FULL:blue:Tank Full|MEDIUM:yellow:Medium Level|LOW:orange:Low Level|EMPTY:red:Tank Empty,0:blue|50:orange|90:red
+Row2,,,fuel_temp,ert,FUEL_TEMP_2,${scid},FUEL_TEMP2,,,,

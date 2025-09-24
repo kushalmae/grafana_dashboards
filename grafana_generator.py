@@ -202,8 +202,8 @@ class GrafanaDashboardGenerator:
             "type": "row"
         }
     
-    def _build_sql_query(self, config: Dict[str, Any]) -> str:
-        """Build SQL query from configuration components"""
+    def _build_state_timeline_query(self, config: Dict[str, Any]) -> str:
+        """Build SQL query specifically for state-timeline panels"""
         eng_str_field = config.get('Eng_Str_Field', 'eng_str')
         time_field = config.get('Time_Field', 'ert')
         table_name = config.get('Table_Name', 'STATE_MACH_TARGET_STATE')
@@ -220,10 +220,46 @@ class GrafanaDashboardGenerator:
         # Use column alias if provided, otherwise use empty string (default behavior)
         alias_part = f'"{column_alias}"' if column_alias else '" "'
         
-        # Build the SQL query with proper formatting
-        sql_query = f"""SELECT\r\n  "{eng_str_field}" AS {alias_part},\r\n  from_unixtime("{time_field}")\r\nFROM\r\n  "{table_name}"\r\nWHERE\r\n  "{time_field}" >= $__timeFrom::bigint\r\n  AND "{time_field}" <= $__timeTo::bigint\r\n  AND "spacecraft_id" = '{spacecraft_id}'\r\nORDER BY "{time_field}" DESC\r\n"""
+        # State-timeline specific query: includes both eng_str and from_unixtime
+        sql_query = f"""SELECT\r\n  "{eng_str_field}" AS {alias_part},\r\n  from_unixtime("{time_field}") AS "time"\r\nFROM\r\n  "{table_name}"\r\nWHERE\r\n  "{time_field}" >= $__timeFrom::bigint\r\n  AND "{time_field}" <= $__timeTo::bigint\r\n  AND "spacecraft_id" = '{spacecraft_id}'\r\nORDER BY "{time_field}" ASC\r\n"""
         
         return sql_query
+    
+    def _build_standard_query(self, config: Dict[str, Any]) -> str:
+        """Build SQL query for standard panels (stat, gauge, etc.)"""
+        eng_str_field = config.get('Eng_Str_Field', 'eng_str')
+        time_field = config.get('Time_Field', 'ert')
+        table_name = config.get('Table_Name', 'STATE_MACH_TARGET_STATE')
+        spacecraft_id = config.get('Spacecraft_ID', '${scid}')
+        column_alias = config.get('Column_Alias', '')
+        
+        # Handle NaN values from pandas
+        if pd.isna(eng_str_field): eng_str_field = 'eng_str'
+        if pd.isna(time_field): time_field = 'ert'
+        if pd.isna(table_name): table_name = 'STATE_MACH_TARGET_STATE'
+        if pd.isna(spacecraft_id): spacecraft_id = '${scid}'
+        if pd.isna(column_alias): column_alias = ''
+        
+        # Use column alias if provided, otherwise use empty string (default behavior)
+        alias_part = f'"{column_alias}"' if column_alias else '" "'
+        
+        # Standard query: just the field with alias
+        sql_query = f"""SELECT\r\n  "{eng_str_field}" AS {alias_part}\r\nFROM\r\n  "{table_name}"\r\nWHERE\r\n  "{time_field}" >= $__timeFrom::bigint\r\n  AND "{time_field}" <= $__timeTo::bigint\r\n  AND "spacecraft_id" = '{spacecraft_id}'\r\nORDER BY "{time_field}" DESC\r\n"""
+        
+        return sql_query
+    
+    def _build_sql_query(self, config: Dict[str, Any]) -> str:
+        """Build SQL query from configuration components - routes to appropriate builder"""
+        panel_type = config.get('Panel_Type', 'stat')
+        
+        # Handle NaN values from pandas
+        if pd.isna(panel_type): panel_type = 'stat'
+        
+        # Route to appropriate query builder based on panel type
+        if panel_type == 'state-timeline':
+            return self._build_state_timeline_query(config)
+        else:
+            return self._build_standard_query(config)
     
     def _create_target(self, config: Dict[str, Any], ref_id: str) -> Dict[str, Any]:
         """Create a single target from configuration"""

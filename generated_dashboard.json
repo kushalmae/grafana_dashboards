@@ -113,7 +113,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\r\n  \"eng_str\" AS \"TARGET_STATE\",\r\n  from_unixtime(\"ert\")\r\nFROM\r\n  \"STATE_MACH_TARGET_STATE\"\r\nWHERE\r\n  \"ert\" >= $__timeFrom::bigint\r\n  AND \"ert\" <= $__timeTo::bigint\r\n  AND \"spacecraft_id\" = '${scid}'\r\nORDER BY \"ert\" DESC\r\n",
+          "rawSql": "SELECT\r\n  \"eng_str\" AS \"TARGET_STATE\",\r\n  from_unixtime(\"ert\") AS \"time\"\r\nFROM\r\n  \"STATE_MACH_TARGET_STATE\"\r\nWHERE\r\n  \"ert\" >= $__timeFrom::bigint\r\n  AND \"ert\" <= $__timeTo::bigint\r\n  AND \"spacecraft_id\" = '${scid}'\r\nORDER BY \"ert\" ASC\r\n",
           "refId": "A",
           "sql": {
             "columns": [
@@ -137,7 +137,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\r\n  \"status_field\" AS \"STATUS\",\r\n  from_unixtime(\"timestamp\")\r\nFROM\r\n  \"SYSTEM_STATUS\"\r\nWHERE\r\n  \"timestamp\" >= $__timeFrom::bigint\r\n  AND \"timestamp\" <= $__timeTo::bigint\r\n  AND \"spacecraft_id\" = '${scid}'\r\nORDER BY \"timestamp\" DESC\r\n",
+          "rawSql": "SELECT\r\n  \"status_field\" AS \"STATUS\"\r\nFROM\r\n  \"SYSTEM_STATUS\"\r\nWHERE\r\n  \"timestamp\" >= $__timeFrom::bigint\r\n  AND \"timestamp\" <= $__timeTo::bigint\r\n  AND \"spacecraft_id\" = '${scid}'\r\nORDER BY \"timestamp\" DESC\r\n",
           "refId": "B",
           "sql": {
             "columns": [
@@ -161,7 +161,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\r\n  \"health_str\" AS \"HEALTH\",\r\n  from_unixtime(\"ert\")\r\nFROM\r\n  \"HEALTH_CHECK\"\r\nWHERE\r\n  \"ert\" >= $__timeFrom::bigint\r\n  AND \"ert\" <= $__timeTo::bigint\r\n  AND \"spacecraft_id\" = '${scid}'\r\nORDER BY \"ert\" DESC\r\n",
+          "rawSql": "SELECT\r\n  \"health_str\" AS \"HEALTH\"\r\nFROM\r\n  \"HEALTH_CHECK\"\r\nWHERE\r\n  \"ert\" >= $__timeFrom::bigint\r\n  AND \"ert\" <= $__timeTo::bigint\r\n  AND \"spacecraft_id\" = '${scid}'\r\nORDER BY \"ert\" DESC\r\n",
           "refId": "C",
           "sql": {
             "columns": [
@@ -285,7 +285,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\r\n  \"fuel_level\" AS \"FUEL_LEVEL\",\r\n  from_unixtime(\"ert\")\r\nFROM\r\n  \"FUEL_SYSTEM\"\r\nWHERE\r\n  \"ert\" >= $__timeFrom::bigint\r\n  AND \"ert\" <= $__timeTo::bigint\r\n  AND \"spacecraft_id\" = '${scid}'\r\nORDER BY \"ert\" DESC\r\n",
+          "rawSql": "SELECT\r\n  \"fuel_level\" AS \"FUEL_LEVEL\"\r\nFROM\r\n  \"FUEL_SYSTEM\"\r\nWHERE\r\n  \"ert\" >= $__timeFrom::bigint\r\n  AND \"ert\" <= $__timeTo::bigint\r\n  AND \"spacecraft_id\" = '${scid}'\r\nORDER BY \"ert\" DESC\r\n",
           "refId": "A",
           "sql": {
             "columns": [
@@ -309,7 +309,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\r\n  \"fuel_temp\" AS \"FUEL_TEMP\",\r\n  from_unixtime(\"ert\")\r\nFROM\r\n  \"FUEL_TEMP\"\r\nWHERE\r\n  \"ert\" >= $__timeFrom::bigint\r\n  AND \"ert\" <= $__timeTo::bigint\r\n  AND \"spacecraft_id\" = '${scid}'\r\nORDER BY \"ert\" DESC\r\n",
+          "rawSql": "SELECT\r\n  \"fuel_temp\" AS \"FUEL_TEMP\"\r\nFROM\r\n  \"FUEL_TEMP\"\r\nWHERE\r\n  \"ert\" >= $__timeFrom::bigint\r\n  AND \"ert\" <= $__timeTo::bigint\r\n  AND \"spacecraft_id\" = '${scid}'\r\nORDER BY \"ert\" DESC\r\n",
           "refId": "B",
           "sql": {
             "columns": [
@@ -420,7 +420,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\r\n  \"fuel_level\" AS \"FUEL_LEVEL2\",\r\n  from_unixtime(\"ert\")\r\nFROM\r\n  \"FUEL_SYSTEM_2\"\r\nWHERE\r\n  \"ert\" >= $__timeFrom::bigint\r\n  AND \"ert\" <= $__timeTo::bigint\r\n  AND \"spacecraft_id\" = '${scid}'\r\nORDER BY \"ert\" DESC\r\n",
+          "rawSql": "SELECT\r\n  \"fuel_level\" AS \"FUEL_LEVEL2\"\r\nFROM\r\n  \"FUEL_SYSTEM_2\"\r\nWHERE\r\n  \"ert\" >= $__timeFrom::bigint\r\n  AND \"ert\" <= $__timeTo::bigint\r\n  AND \"spacecraft_id\" = '${scid}'\r\nORDER BY \"ert\" DESC\r\n",
           "refId": "A",
           "sql": {
             "columns": [
@@ -444,7 +444,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\r\n  \"fuel_temp\" AS \"FUEL_TEMP2\",\r\n  from_unixtime(\"ert\")\r\nFROM\r\n  \"FUEL_TEMP_2\"\r\nWHERE\r\n  \"ert\" >= $__timeFrom::bigint\r\n  AND \"ert\" <= $__timeTo::bigint\r\n  AND \"spacecraft_id\" = '${scid}'\r\nORDER BY \"ert\" DESC\r\n",
+          "rawSql": "SELECT\r\n  \"fuel_temp\" AS \"FUEL_TEMP2\"\r\nFROM\r\n  \"FUEL_TEMP_2\"\r\nWHERE\r\n  \"ert\" >= $__timeFrom::bigint\r\n  AND \"ert\" <= $__timeTo::bigint\r\n  AND \"spacecraft_id\" = '${scid}'\r\nORDER BY \"ert\" DESC\r\n",
           "refId": "B",
           "sql": {
             "columns": [
@@ -517,6 +517,6 @@
   "timepicker": {},
   "timezone": "utc",
   "title": "Generated Dashboard",
-  "uid": "4545ac8e-a45e-4480-ab12-32a62c0fb0d0",
+  "uid": "31a118ff-7988-4f49-880f-bfb8fb4796f0",
   "version": 1
 }

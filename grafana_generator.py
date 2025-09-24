@@ -428,38 +428,36 @@ class GrafanaDashboardGenerator:
             # Get all rows for this row name
             row_data = config_dataframe[config_dataframe['Row'] == row_name].copy()
             
-            # Group by panels (automatically detect new panels vs additional targets)
-            panel_groups = []
-            current_panel = None
+            # Group by Panel_Template - same templates become one panel with multiple targets
+            panel_groups = {}  # Dictionary to group by panel template
             
             for _, row_config in row_data.iterrows():
-                panel_title = row_config.get('Panel_Title', '')
                 panel_template = row_config.get('Panel_Template', '')
                 
-                # Auto-detect: New panel if Panel_Title or Panel_Template is specified
-                # Additional target if both Panel_Title and Panel_Template are empty/NaN
-                has_panel_info = bool(panel_title) or bool(panel_template)
-                
                 # Handle NaN values from pandas
-                if pd.isna(panel_title): panel_title = ''
                 if pd.isna(panel_template): panel_template = ''
-                has_panel_info = bool(panel_title.strip()) or bool(panel_template.strip())
+                panel_template = panel_template.strip()
                 
-                if has_panel_info:
-                    # This is a new panel (has Panel_Title or Panel_Template)
-                    if current_panel is not None:
-                        panel_groups.append(current_panel)
-                    current_panel = {
-                        'panel_config': row_config,
-                        'targets': [row_config]  # First target
-                    }
-                elif current_panel is not None:
-                    # This is an additional target (no Panel_Title or Panel_Template)
-                    current_panel['targets'].append(row_config)
+                if panel_template:
+                    # This row has a panel template - either start new panel or add to existing
+                    if panel_template not in panel_groups:
+                        # First occurrence of this panel template
+                        panel_groups[panel_template] = {
+                            'panel_config': row_config,
+                            'targets': [row_config]
+                        }
+                    else:
+                        # Additional occurrence of same panel template - add as target
+                        panel_groups[panel_template]['targets'].append(row_config)
+                else:
+                    # This is an additional target (no Panel_Template) - add to the last panel
+                    if panel_groups:
+                        # Get the last panel group added
+                        last_panel_template = list(panel_groups.keys())[-1]
+                        panel_groups[last_panel_template]['targets'].append(row_config)
             
-            # Add the last panel
-            if current_panel is not None:
-                panel_groups.append(current_panel)
+            # Convert dictionary to list for processing
+            panel_groups = list(panel_groups.values())
             
             # Calculate layout positions for panels
             positioned_panels, x_pos, current_y = self._calculate_layout_positions(panel_groups, 0, current_y)
